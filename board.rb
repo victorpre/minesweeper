@@ -18,10 +18,6 @@ class Board
     self.instance_variable_get("@game")
   end
 
-  def set_body x,y,val
-    @body[x-1][y-1]=val
-  end
-
   # Plant mines into the board
   def plant_mines num_mines
     planted_mines=0
@@ -48,7 +44,6 @@ class Board
         when "L"
           cell = {:cell_coord => [i+1,j+1], :neighbors_bombs_count => self.bombs_around(i+1,j+1) }
           board_state[:clear_cell] << cell
-          # board_state[:clear_cell] << [
 
           # board_state[:clear_cell][:count] << [self.neighbors_bombs_count(i+1,j+1)]
           # TODO add number of nerighbor bombs
@@ -96,7 +91,7 @@ class Board
 
   def show_neighbors x,y
     if self.valid_bounds?(x,y)
-      if !self.has_bomb?(x,y) && !self.uncovered?(x,y)
+      if !self.has_bomb?(x,y) && !self.discovered?(x,y) && !self.flag?(x,y)
         puts "foi pra #{x},#{y}"
         self.body[x-1][y-1] = "L"
         show_neighbors(x-1,y-1) # Upper left
@@ -115,8 +110,36 @@ class Board
     x <= self.width && y <= self.height && x>0 && y>0
   end
 
-  def uncovered? x,y
+  def discovered? x,y
     self.body[x-1][y-1]=="L"
+  end
+
+  def discovered_count
+    counter = 0
+    for i in 1..self.height
+      for j in 1..self.width
+        counter+=1 if self.discovered?(i,j)
+      end
+    end
+    counter
+  end
+
+  def body_size
+    self.width*self.height
+  end
+
+  def flag_count
+    counter = 0
+    for i in 1..self.height
+      for j in 1..self.width
+        counter+=1 if self.flag?(i,j)
+      end
+    end
+    counter
+  end
+
+  def flag? x,y
+    self.body[x-1][y-1] == "F"
   end
 
   def print_board
