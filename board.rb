@@ -24,16 +24,19 @@ class Board
 
   # Plant mines into the board
   def plant_mines num_mines
-    for i in 0..num_mines
+    planted_mines=0
+    while planted_mines<num_mines
       mine_x = rand(0..self.width-1)
       mine_y = rand(0..self.height-1)
       if(self.body[mine_x][mine_y]!="#")
         self.body[mine_x][mine_y] = "#"
+        planted_mines+=1
       end
+
     end
   end
 
-  def board_state(*args)
+  def board_state(**args)
     board_state = {:unknown_cell =>[],:clear_cell=>[], :bomb =>[], :flag =>[]}
     for i in 0..self.width-1
       for j in 0..self.height-1
@@ -42,13 +45,18 @@ class Board
           board_state[:unknown_cell] << [i+1,j+1]
         when "F"
           board_state[:flag] << [i+1,j+1]
-        else
-          board_state[:clear_cell] << [i+1,j+1]
+        when "L"
+          cell = {:cell_coord => [i+1,j+1], :neighbors_bombs_count => self.bombs_around(i+1,j+1) }
+          board_state[:clear_cell] << cell
+          # board_state[:clear_cell] << [
+
+          # board_state[:clear_cell][:count] << [self.neighbors_bombs_count(i+1,j+1)]
           # TODO add number of nerighbor bombs
         end
       end
     end
-    if :xray && !self.game.still_playing?
+
+    if args[:xray] && !self.game.still_playing?
       for i in 0..self.width-1
         for j in 0..self.height-1
           if self.body[i][j] == "#"
@@ -63,31 +71,52 @@ class Board
   def has_bomb? x,y
     print_board
     if self.body[x-1][y-1]=="#"
-      puts "bomba em #{x},#{y}"
       true
     else
       false
     end
   end
 
-  def show_neighbors x,y
-    puts "foi pra #{x},#{y}"
-    if !self.has_bomb?(x,y) && self.valid_bounds?(x,y)
-      self.body[x-1][y-1] = "L"
-      show_neighbors(x-1,y-1) # Upper left
-      show_neighbors(x,y-1) # Upper
-      show_neighbors(x+1,y-1) # Upper right
-      show_neighbors(x-1,y) # Left
-      show_neighbors(x+1,y) # Right
-      show_neighbors(x-1,y+1) # Bottom left
-      show_neighbors(x,y+1) # Bottom
-      show_neighbors(x+1,y+1) # Botom Right
+  def bombs_around x,y # 2,3
+    counter = 0
+    for i in 0..2
+      for j in 0..2
+        he=x-1+i
+        wi=y-1+j
+        if self.height>he && self.width>wi && wi>0 && he>0
+          if has_bomb? he,wi
+            puts "contei a bomba #{x},#{y}"
+            counter+=1
+          end
+        end
+      end
     end
+    counter
+  end
 
+  def show_neighbors x,y
+    if self.valid_bounds?(x,y)
+      if !self.has_bomb?(x,y) && !self.uncovered?(x,y)
+        puts "foi pra #{x},#{y}"
+        self.body[x-1][y-1] = "L"
+        show_neighbors(x-1,y-1) # Upper left
+        show_neighbors(x,y-1) # Upper
+        show_neighbors(x+1,y-1) # Upper right
+        show_neighbors(x-1,y) # Left
+        show_neighbors(x+1,y) # Right
+        show_neighbors(x-1,y+1) # Bottom left
+        show_neighbors(x,y+1) # Bottom
+        show_neighbors(x+1,y+1) # Botom Right
+      end
+    end
   end
 
   def valid_bounds? x,y
     x <= self.width && y <= self.height && x>0 && y>0
+  end
+
+  def uncovered? x,y
+    self.body[x-1][y-1]=="L"
   end
 
   def print_board
@@ -97,5 +126,6 @@ class Board
       end
       print "\n"
     end
+    print "\n"
   end
 end

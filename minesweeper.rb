@@ -51,7 +51,7 @@ class Minesweeper
 
   def valid_play? x,y
     cell = self.board.body[x-1][y-1]
-    cell!="F" && cell!=" "
+    cell!="F" && cell!=" " # TODO change cell
   end
 end
 
@@ -62,4 +62,4 @@ game.board.print_board
 puts "------------"
 game.play 2,3
 game.board.print_board
-# game.board.board_state({xray: true})
+game.board.board_state({xray: true})
