@@ -1,14 +1,15 @@
 require './cell.rb'
+require 'pry'
 class Board
   attr_accessor :width, :height
   def initialize(minesweeper)
     self.height = minesweeper.instance_variable_get("@height")
     self.width = minesweeper.instance_variable_get("@width")
     num_mines = minesweeper.instance_variable_get("@num_mines")
-    @body = Array.new(width) { Array.new(height) }
+    @body = Array.new(height) { Array.new(width) }
     @game = minesweeper
-
     self.initialize_cells
+
     plant_mines(num_mines)
   end
 
@@ -20,10 +21,10 @@ class Board
   def game
     self.instance_variable_get("@game")
   end
-
+# HEIGHT EM CIMA
   def initialize_cells
-    for i in 0..self.width-1
-      for j in 0..self.height-1
+    for i in 0..self.height-1
+      for j in 0..self.width-1
         self.body[i][j]= Cell.new(".")
       end
     end
@@ -34,10 +35,10 @@ class Board
     puts "Planting #{num_mines} mines.."
     planted_mines=0
     while planted_mines < num_mines
-      mine_x = rand(0..self.width-1)
-      mine_y = rand(0..self.height-1)
-      if(self.body[mine_x][mine_y].value!="#")
-        self.body[mine_x][mine_y].value = "#"
+      col = rand(0..self.width-1)
+      line = rand(0..self.height-1)
+      if(self.body[line][col].value!="#")
+        self.body[line][col].value = "#"
         planted_mines+=1
       end
     end
@@ -45,8 +46,8 @@ class Board
 
   def board_state(**args)
     board_state = {:unknown_cell =>[],:clear_cell=>[], :bomb =>[], :flag =>[]}
-    for i in 0..self.width-1
-      for j in 0..self.height-1
+    for i in 0..self.height-1
+      for j in 0..self.width-1
         case self.body[i][j].value
         when "."
           board_state[:unknown_cell] << [i+1,j+1]
@@ -63,8 +64,8 @@ class Board
     end
 
     if args[:xray] && !self.game.still_playing?
-      for i in 0..self.width-1
-        for j in 0..self.height-1
+      for i in 0..self.height-1
+        for j in 0..self.width-1
           if self.body[i][j].value == "#"
             board_state[:bomb] << [i+1,j+1]
           end
@@ -104,6 +105,7 @@ class Board
       if !self.discovered?(x,y)
         self.discover(x,y)
         if !self.has_bomb?(x,y) && !self.flag?(x,y) && self.bombs_around(x,y)==0
+          puts "to na #{x},#{y}"
           show_neighbors(x-1,y-1) # Upper left
           show_neighbors(x,y-1) # Upper
           show_neighbors(x+1,y-1) # Upper right
@@ -118,7 +120,7 @@ class Board
   end
 
   def valid_bounds? x,y
-    x <= self.width && y <= self.height && x>0 && y>0
+    x <= self.height && y <= self.width && x>0 && y>0
   end
 
   def discover x,y  # TODO change cell
@@ -157,9 +159,18 @@ class Board
     self.body[x-1][y-1].value == "F"
   end
 
+  def board_format
+    board_format = {
+      unknown_cell: '.',
+      clear_cell: 'L',
+      bomb: '#',
+      flag: 'F'
+    }
+  end
+
   def print_board
-    for i in 0..self.width-1
-      for j in 0..self.height-1
+    for i in 0..self.height-1
+      for j in 0..self.width-1
         print self.body[i][j].value
       end
       print "\n"

@@ -1,4 +1,8 @@
 require './board.rb'
+# require './pretty_printer.rb'
+require 'pp'
+require 'ap'
+
 class Minesweeper
   attr_accessor :clicked_bomb
   def initialize(width, height, num_mines)
@@ -33,7 +37,6 @@ class Minesweeper
     if (valid_play?(x,y) && self.board.valid_bounds?(x,y))
       if self.board.has_bomb? x,y
         self.clicked_bomb = true
-        puts "Você perdeu! As minas eram:"
         puts self.board.board_state({xray: true}) # PrettyPrinter.new.print(game.board_state(xray: true))
       else
         # if self.board.bombs_around(x,y) == 0 # No neighbor bombs
@@ -75,12 +78,22 @@ class Minesweeper
   end
 end
 
-@game = Minesweeper.new(9,9,10)
+width, height, num_mines = 10, 20, 50
+@game = Minesweeper.new(width, height, num_mines)
 @game.board.print_board
-# game.flag 2,2
-# game.board.print_board
-# puts "------------"
-@game.play 2,3
-@game.board.print_board
-# @game.board.board_state({xray: true})
-# puts game.still_playing?
+while @game.still_playing?
+  valid_move = @game.play(rand(height), rand(width))
+  valid_flag = @game.flag(rand(height), rand(width))
+  if valid_move or valid_flag
+    puts @game.board.board_state
+  end
+end
+
+puts "Fim do jogo!"
+if @game.victory?
+  puts "Você venceu!"
+else
+  puts "Você perdeu! As minas eram:"
+  pp(@game.board.board_state(xray: true))
+  pp (@game.board.board_format)
+end
