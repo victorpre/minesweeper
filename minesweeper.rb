@@ -36,9 +36,11 @@ class Minesweeper
         puts "Você perdeu! As minas eram:"
         puts self.board.board_state({xray: true}) # PrettyPrinter.new.print(game.board_state(xray: true))
       else
-        if self.board.bombs_around(x,y) == 0
+        # if self.board.bombs_around(x,y) == 0 # No neighbor bombs
+          puts "entrou"
+          # self.board.body[x-1][y-1].neighbors_bombs = self.board.bombs_around(x,y)
           self.board.show_neighbors x,y
-        end
+        # end
       end
       true
     else
@@ -49,7 +51,7 @@ class Minesweeper
   def flag x,y
     if self.board.valid_bounds? x,y
       cell = self.board.body[x-1][y-1].value
-      if cell!="F"
+      if cell!="F" && cell!="L"
         self.board.body[x-1][y-1].value="F"
       elsif cell=="F"
         self.board.body[x-1][y-1].value="."
@@ -69,16 +71,16 @@ class Minesweeper
 
   def valid_play? x,y
     cell = self.board.body[x-1][y-1].value
-    !self.board.flag?(x,y) && cell!="L" # TODO change cell
+    !self.board.flag?(x,y) && !self.board.discovered?(x,y) # TODO change cell
   end
 end
 
-@game = Minesweeper.new(3,3,2)
+@game = Minesweeper.new(9,9,10)
 @game.board.print_board
 # game.flag 2,2
 # game.board.print_board
 # puts "------------"
-# game.play 2,3
-# game.board.print_board
-# game.board.board_state({xray: true})
+@game.play 2,3
+@game.board.print_board
+# @game.board.board_state({xray: true})
 # puts game.still_playing?

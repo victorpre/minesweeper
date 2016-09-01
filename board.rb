@@ -7,7 +7,7 @@ class Board
     num_mines = minesweeper.instance_variable_get("@num_mines")
     @body = Array.new(width) { Array.new(height) }
     @game = minesweeper
-    
+
     self.initialize_cells
     plant_mines(num_mines)
   end
@@ -31,18 +31,16 @@ class Board
 
   # Plant mines into the board
   def plant_mines num_mines
-    puts "planting #{num_mines} mines"
+    puts "Planting #{num_mines} mines.."
     planted_mines=0
     while planted_mines < num_mines
       mine_x = rand(0..self.width-1)
       mine_y = rand(0..self.height-1)
       if(self.body[mine_x][mine_y].value!="#")
-        puts "plantei em [#{mine_x},#{mine_y}]"
         self.body[mine_x][mine_y].value = "#"
         planted_mines+=1
       end
     end
-    puts "plantei #{planted_mines} bombas"
   end
 
   def board_state(**args)
@@ -77,7 +75,6 @@ class Board
   end
 
   def has_bomb? x,y
-    print_board
     if self.body[x-1][y-1].value=="#"
       true
     else
@@ -85,15 +82,14 @@ class Board
     end
   end
 
-  def bombs_around x,y # 2,3
+  def bombs_around x,y
     counter = 0
     for i in 0..2
       for j in 0..2
-        he=x-1+i
-        wi=y-1+j
-        if self.height>he && self.width>wi && wi>0 && he>0
-          if has_bomb? he,wi
-            puts "contei a bomba #{x},#{y}"
+        h=x-1+i
+        w=y-1+j
+        if self.height>h && self.width>w && w>0 && h>0
+          if has_bomb? h,w
             counter+=1
           end
         end
@@ -104,17 +100,19 @@ class Board
 
   def show_neighbors x,y
     if self.valid_bounds?(x,y)
-      if !self.has_bomb?(x,y) && !self.discovered?(x,y) && !self.flag?(x,y)
-        puts "foi pra #{x},#{y}"
-        self.body[x-1][y-1].value = "L"
-        show_neighbors(x-1,y-1) # Upper left
-        show_neighbors(x,y-1) # Upper
-        show_neighbors(x+1,y-1) # Upper right
-        show_neighbors(x-1,y) # Left
-        show_neighbors(x+1,y) # Right
-        show_neighbors(x-1,y+1) # Bottom left
-        show_neighbors(x,y+1) # Bottom
-        show_neighbors(x+1,y+1) # Botom Right
+      self.body[x-1][y-1].neighbors_bombs = self.bombs_around(x,y)
+      if !self.discovered?(x,y)
+        self.discover(x,y)
+        if !self.has_bomb?(x,y) && !self.flag?(x,y) && self.bombs_around(x,y)==0
+          show_neighbors(x-1,y-1) # Upper left
+          show_neighbors(x,y-1) # Upper
+          show_neighbors(x+1,y-1) # Upper right
+          show_neighbors(x-1,y) # Left
+          show_neighbors(x+1,y) # Right
+          show_neighbors(x-1,y+1) # Bottom left
+          show_neighbors(x,y+1) # Bottom
+          show_neighbors(x+1,y+1) # Botom Right
+        end
       end
     end
   end
@@ -123,8 +121,12 @@ class Board
     x <= self.width && y <= self.height && x>0 && y>0
   end
 
+  def discover x,y  # TODO change cell
+      self.body[x-1][y-1].value = "L"
+  end
+
   def discovered? x,y
-    self.body[x-1][y-1].value=="L"
+    self.body[x-1][y-1].value=="L" # TODO change cell
   end
 
   def discovered_count
