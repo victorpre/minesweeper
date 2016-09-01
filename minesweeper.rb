@@ -48,11 +48,11 @@ class Minesweeper
 
   def flag x,y
     if self.board.valid_bounds? x,y
-      cell = self.board.body[x-1][y-1]
+      cell = self.board.body[x-1][y-1].value
       if cell!="F"
-        self.board.body[x-1][y-1]="F"
+        self.board.body[x-1][y-1].value="F"
       elsif cell=="F"
-        self.board.body[x-1][y-1]="."
+        self.board.body[x-1][y-1].value="."
       else
 
       end
@@ -68,17 +68,17 @@ class Minesweeper
   end
 
   def valid_play? x,y
-    cell = self.board.body[x-1][y-1]
+    cell = self.board.body[x-1][y-1].value
     !self.board.flag?(x,y) && cell!="L" # TODO change cell
   end
 end
 
-game = Minesweeper.new(3,3,2)
-game.board.print_board
+@game = Minesweeper.new(3,3,2)
+@game.board.print_board
 # game.flag 2,2
 # game.board.print_board
-puts "------------"
-game.play 2,3
-game.board.print_board
-game.board.board_state({xray: true})
-puts game.still_playing?
+# puts "------------"
+# game.play 2,3
+# game.board.print_board
+# game.board.board_state({xray: true})
+# puts game.still_playing?
