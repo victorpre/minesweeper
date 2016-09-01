@@ -21,7 +21,7 @@ class Board
   def game
     self.instance_variable_get("@game")
   end
-# HEIGHT EM CIMA
+  # Creates cells obj
   def initialize_cells
     for i in 0..self.height-1
       for j in 0..self.width-1
@@ -56,9 +56,6 @@ class Board
         when "L"
           cell = {:cell_coord => [i+1,j+1], :neighbors_bombs_count => self.bombs_around(i+1,j+1) }
           board_state[:clear_cell] << cell
-
-          # board_state[:clear_cell][:count] << [self.neighbors_bombs_count(i+1,j+1)]
-          # TODO add number of nerighbor bombs
         end
       end
     end
@@ -105,7 +102,6 @@ class Board
       if !self.discovered?(x,y)
         self.discover(x,y)
         if !self.has_bomb?(x,y) && !self.flag?(x,y) && self.bombs_around(x,y)==0
-          puts "to na #{x},#{y}"
           show_neighbors(x-1,y-1) # Upper left
           show_neighbors(x,y-1) # Upper
           show_neighbors(x+1,y-1) # Upper right
@@ -123,12 +119,12 @@ class Board
     x <= self.height && y <= self.width && x>0 && y>0
   end
 
-  def discover x,y  # TODO change cell
+  def discover x,y
       self.body[x-1][y-1].value = "L"
   end
 
   def discovered? x,y
-    self.body[x-1][y-1].value=="L" # TODO change cell
+    self.body[x-1][y-1].value=="L"
   end
 
   def discovered_count

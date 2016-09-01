@@ -1,7 +1,5 @@
 require './board.rb'
-# require './pretty_printer.rb'
-require 'pp'
-require 'ap'
+require './pretty_printer.rb'
 
 class Minesweeper
   attr_accessor :clicked_bomb
@@ -37,13 +35,8 @@ class Minesweeper
     if (valid_play?(x,y) && self.board.valid_bounds?(x,y))
       if self.board.has_bomb? x,y
         self.clicked_bomb = true
-        puts self.board.board_state({xray: true}) # PrettyPrinter.new.print(game.board_state(xray: true))
       else
-        # if self.board.bombs_around(x,y) == 0 # No neighbor bombs
-          puts "entrou"
-          # self.board.body[x-1][y-1].neighbors_bombs = self.board.bombs_around(x,y)
-          self.board.show_neighbors x,y
-        # end
+        self.board.show_neighbors x,y
       end
       true
     else
@@ -74,7 +67,7 @@ class Minesweeper
 
   def valid_play? x,y
     cell = self.board.body[x-1][y-1].value
-    !self.board.flag?(x,y) && !self.board.discovered?(x,y) # TODO change cell
+    !self.board.flag?(x,y) && !self.board.discovered?(x,y)
   end
 end
 
@@ -94,6 +87,6 @@ if @game.victory?
   puts "Você venceu!"
 else
   puts "Você perdeu! As minas eram:"
-  pp(@game.board.board_state(xray: true))
-  pp (@game.board.board_format)
+  PrettyPrinter.new.print(@game.board.board_state(xray: true))
+  PrettyPrinter.new.print(@game.board.board_format)
 end
