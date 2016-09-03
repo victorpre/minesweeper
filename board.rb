@@ -166,8 +166,9 @@ class Board
 
   def print_board
     for i in 0..self.height-1
+      print "#{i+1}:  |"
       for j in 0..self.width-1
-        print self.body[i][j].value
+        print "#{self.body[i][j].value}|"
       end
       print "\n"
     end
