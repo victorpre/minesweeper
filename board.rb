@@ -9,8 +9,11 @@ class Board
     @body = Array.new(height) { Array.new(width) }
     @game = minesweeper
     self.initialize_cells
-
-    plant_mines(num_mines)
+    if body_size > num_mines
+      plant_mines(num_mines)
+    else
+      abort("Quantidade de minas superior ao tamanho do tabuleiro.")
+    end
   end
 
   # Getters
