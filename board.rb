@@ -1,13 +1,13 @@
 require './cell.rb'
 require 'pry'
 class Board
-  attr_accessor :width, :height
-  def initialize(minesweeper)
-    self.height = minesweeper.instance_variable_get("@height")
-    self.width = minesweeper.instance_variable_get("@width")
-    num_mines = minesweeper.instance_variable_get("@num_mines")
-    @body = Array.new(height) { Array.new(width) }
-    @game = minesweeper
+  attr_accessor :body, :height, :width, :num_mines
+  def initialize(width, height, num_mines)
+    self.num_mines = num_mines
+    self.body = Array.new(height+1) { Array.new(width+1) }
+    self.height = height
+    self.width = width
+#    @game = minesweeper
     self.initialize_cells
     if body_size > num_mines
       plant_mines(num_mines)
@@ -16,18 +16,10 @@ class Board
     end
   end
 
-  # Getters
-  def body
-    self.instance_variable_get("@body")
-  end
-
-  def game
-    self.instance_variable_get("@game")
-  end
   # Creates cells obj
   def initialize_cells
-    for i in 0..self.height-1
-      for j in 0..self.width-1
+    for i in 1..self.height
+      for j in 1..self.width
         self.body[i][j]= Cell.new(".")
       end
     end
@@ -38,8 +30,8 @@ class Board
     puts "Planting #{num_mines} mines.."
     planted_mines=0
     while planted_mines < num_mines
-      col = rand(0..self.width-1)
-      line = rand(0..self.height-1)
+      col = rand(1..self.width)
+      line = rand(1..self.height)
       if(self.body[line][col].value!="#")
         self.body[line][col].value = "#"
         planted_mines+=1
@@ -48,26 +40,26 @@ class Board
   end
 
   def board_state(**args)
-    board_state = {:unknown_cell =>[],:clear_cell=>[], :bomb =>[], :flag =>[]}
-    for i in 0..self.height-1
-      for j in 0..self.width-1
+    board_state = {unknown_cell: [], clear_cell: [], bomb: [], flag: []}
+    for i in 1..self.height
+      for j in 1..self.width
         case self.body[i][j].value
         when "."
-          board_state[:unknown_cell] << [i+1,j+1]
+          board_state[:unknown_cell] << [i,j]
         when "F"
-          board_state[:flag] << [i+1,j+1]
+          board_state[:flag] << [i,j]
         when "L"
-          cell = {:cell_coord => [i+1,j+1], :neighbors_bombs_count => self.bombs_around(i+1,j+1) }
+          cell = {cell_coord:  [i,j], neighbors_bombs_count: self.bombs_around(i,j) }
           board_state[:clear_cell] << cell
         end
       end
     end
 
-    if args[:xray] && !self.game.still_playing?
-      for i in 0..self.height-1
-        for j in 0..self.width-1
+    if args[:xray]
+      for i in 1..self.height
+        for j in 1..self.width
           if self.body[i][j].value == "#"
-            board_state[:bomb] << [i+1,j+1]
+            board_state[:bomb] << [i,j]
           end
         end
       end
@@ -76,7 +68,7 @@ class Board
   end
 
   def has_bomb? x,y
-    if self.body[x-1][y-1].value=="#"
+    if self.body[x][y].value=="#"
       true
     else
       false
@@ -87,8 +79,8 @@ class Board
     counter = 0
     for i in 0..2
       for j in 0..2
-        h=x-1+i
-        w=y-1+j
+        h=x+i
+        w=y+j
         if self.height>h && self.width>w && w>0 && h>0
           if has_bomb? h,w
             counter+=1
@@ -101,7 +93,7 @@ class Board
 
   def show_neighbors x,y
     if self.valid_bounds?(x,y)
-      self.body[x-1][y-1].neighbors_bombs = self.bombs_around(x,y)
+      self.body[x][y].neighbors_bombs = self.bombs_around(x,y)
       if !self.discovered?(x,y)
         self.discover(x,y)
         if !self.has_bomb?(x,y) && !self.flag?(x,y) && self.bombs_around(x,y)==0
@@ -123,11 +115,11 @@ class Board
   end
 
   def discover x,y
-      self.body[x-1][y-1].value = "L"
+      self.body[x][y].value = "L"
   end
 
   def discovered? x,y
-    self.body[x-1][y-1].value=="L"
+    self.body[x][y].value=="L"
   end
 
   def discovered_count
@@ -141,7 +133,7 @@ class Board
   end
 
   def body_size
-    self.width*self.height
+    (self.width-1)*(self.height-1)
   end
 
   def flag_count
@@ -155,11 +147,11 @@ class Board
   end
 
   def flag? x,y
-    self.body[x-1][y-1].value == "F"
+    self.body[x][y].value == "F"
   end
 
   def board_format
-    board_format = {
+    {
       unknown_cell: '.',
       clear_cell: 'L',
       bomb: '#',
@@ -168,9 +160,9 @@ class Board
   end
 
   def print_board
-    for i in 0..self.height-1
-      print "#{i+1}:  |"
-      for j in 0..self.width-1
+    for i in 1..self.height
+      print "#{i}:  |"
+      for j in 1..self.width
         print "#{self.body[i][j].value}|"
       end
       print "\n"

@@ -2,25 +2,11 @@ require './board.rb'
 require './pretty_printer.rb'
 
 class Minesweeper
-  attr_accessor :clicked_bomb
-  def initialize(width, height, num_mines)
-    @width = width
-    @height = height
-    @num_mines = num_mines
-    @board = new_board
+  attr_accessor :clicked_bomb, :board, :num_mines
+  def initialize(height, width, num_mines)
+    self.num_mines = num_mines
     self.clicked_bomb = false
-  end
-
-  def new_board
-    board = Board.new(self)
-  end
-
-  def board
-    self.instance_variable_get("@board")
-  end
-
-  def num_mines
-    self.instance_variable_get("@num_mines")
+    self.board = Board.new(height, width, num_mines)
   end
 
   def still_playing?
@@ -46,11 +32,11 @@ class Minesweeper
 
   def flag x,y
     if self.board.valid_bounds? x,y
-      cell_value = self.board.body[x-1][y-1].value
+      cell_value = self.board.body[x][y].value
       if cell_value!="F" && cell_value!="L"
-        self.board.body[x-1][y-1].value="F"
+        self.board.body[x][y].value="F"
       elsif cell_value=="F"
-        self.board.body[x-1][y-1].value="."
+        self.board.body[x][y].value="."
       else
 
       end
@@ -66,27 +52,27 @@ class Minesweeper
   end
 
   def valid_play? x,y
-    cell_value = self.board.body[x-1][y-1].value
     !self.board.flag?(x,y) && !self.board.discovered?(x,y)
   end
 end
 
-width, height, num_mines = 10, 20, 50
+width, height, num_mines = 3, 5, 4
 @game = Minesweeper.new(width, height, num_mines)
 @game.board.print_board
 while @game.still_playing?
-  valid_move = @game.play(rand(height), rand(width))
-  valid_flag = @game.flag(rand(height), rand(width))
+  valid_move = @game.play(rand(1..height), rand(1..width))
+  valid_flag = @game.flag(rand(1..height), rand(1..width))
   if valid_move or valid_flag
     puts @game.board.board_state
+    binding.pry
   end
 end
-
+binding.pry
 puts "Fim do jogo!"
 if @game.victory?
   puts "Você venceu!"
 else
   puts "Você perdeu! As minas eram:"
-  PrettyPrinter.new.print(@game.board.board_state(xray: true))
+#  PrettyPrinter.new.print(@game.board.board_state(xray: true))
   PrettyPrinter.new.print(@game.board.board_format)
 end
