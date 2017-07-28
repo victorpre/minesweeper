@@ -3,6 +3,6 @@ require 'ap'
 
 class PrettyPrinter
   def print(obj)
-    ap obj
+    pp obj
   end
 end

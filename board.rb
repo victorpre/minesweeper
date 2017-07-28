@@ -77,11 +77,12 @@ class Board
 
   def bombs_around x,y
     counter = 0
-    for i in 0..2
-      for j in 0..2
+    for i in -1..1
+      for j in -1..1
         h=x+i
         w=y+j
-        if self.height>h && self.width>w && w>0 && h>0
+        if self.height>=h && self.width>=w && w>0 && h>0
+          puts "checking for bomb in #{h},#{w}"
           if has_bomb? h,w
             counter+=1
           end
@@ -95,7 +96,7 @@ class Board
     if self.valid_bounds?(x,y)
       self.body[x][y].neighbors_bombs = self.bombs_around(x,y)
       if !self.discovered?(x,y)
-        self.discover(x,y)
+          self.discover(x,y)
         if !self.has_bomb?(x,y) && !self.flag?(x,y) && self.bombs_around(x,y)==0
           show_neighbors(x-1,y-1) # Upper left
           show_neighbors(x,y-1) # Upper
@@ -133,7 +134,7 @@ class Board
   end
 
   def body_size
-    (self.width-1)*(self.height-1)
+    (self.width)*(self.height)
   end
 
   def flag_count

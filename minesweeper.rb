@@ -48,6 +48,7 @@ class Minesweeper
 
 
   def victory?
+    self.board.print_board
     (self.num_mines == self.board.flag_count) && (self.board.body_size - self.num_mines == self.board.discovered_count) && (!self.clicked_bomb)
   end
 
@@ -56,7 +57,7 @@ class Minesweeper
   end
 end
 
-width, height, num_mines = 3, 5, 4
+width, height, num_mines = 3, 3, 1
 @game = Minesweeper.new(width, height, num_mines)
 @game.board.print_board
 while @game.still_playing?
@@ -64,7 +65,6 @@ while @game.still_playing?
   valid_flag = @game.flag(rand(1..height), rand(1..width))
   if valid_move or valid_flag
     puts @game.board.board_state
-    binding.pry
   end
 end
 binding.pry
